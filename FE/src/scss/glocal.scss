@@ -1,0 +1,38 @@
+
+.icon-action {
+  font-size: 24px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.icon-primary {
+  color: #3745b5;
+}
+
+.icon-danger {
+  color: #e46569;
+}
+
+.icon-success {
+  color: chartreuse;
+}
+
+.pagination {
+  display: flex;
+  justify-content: end;
+  margin-top: 20px;
+}
+
+.header-modal {
+  width: 100%;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center
+}
+
+.modal-container {
+  transform: translateY(60px);
+  min-width:380px;
+  height: fit-content
+}
