@@ -12,6 +12,16 @@ const NotificationService = {
             }
         })
     },
+
+    async getNotification (data = {}){
+        const accessToken = localStorage.getItem('token')
+        return await baseURL.get('notification/list', {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                },
+                params: data
+            })
+    },
 }
 
 export default NotificationService

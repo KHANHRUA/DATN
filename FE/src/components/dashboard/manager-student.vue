@@ -29,17 +29,6 @@
               </el-text>
             </el-button>
           </el-col>
-          <el-col :span="12">
-            <el-button class="buttonManager" @click="openSendNotificationModal">
-              <el-icon class="icon">
-                <Promotion />
-              </el-icon>
-              <el-text class="feature">
-                {{'Send notification'}}
-              </el-text>
-            </el-button>
-            <SendNotificationComponent ref="sendNotification"/>
-          </el-col>
         </el-row>
       </el-col>
       <el-col :span="24" :md="10">
@@ -78,13 +67,11 @@
 <script lang="ts">
 import RolesComponent from "@/components/admin/roles-component.vue";
 import {User, Switch, Finished, Clock, BellFilled, Promotion} from "@element-plus/icons-vue"
-import SendNotificationComponent from "@/components/admin/send-notification-component.vue";
 import ViewNotificationComponent from "@/components/admin/view-notification-component.vue";
 
 export default {
   name: 'adminDashboard',
   components:{
-    SendNotificationComponent,
     ViewNotificationComponent,
     RolesComponent,
     User,
@@ -109,9 +96,6 @@ export default {
   methods:{
     openRolesModal(){
       this.$refs.roles.show()
-    },
-    openSendNotificationModal(){
-      this.$refs.sendNotification.show()
     },
     openViewNotificationModal(){
       this.$refs.viewNotification.show()

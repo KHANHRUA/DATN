@@ -23,7 +23,7 @@ def list():
         notifications = []
 
         if( jwt.get('role') != str(UserRole.admin.value)):
-            id = request.args.get('id')
+            id = jwt.get('id')
             user = user_control.get_user_by_id(id)
             myNotifications = notification_control.get_all_notification_by_filter(page,perPage,user_id=id,class_id=None)
             myClassNotifications = notification_control.get_all_notification_by_filter(page,perPage,user_id=None,class_id=user.class_id)

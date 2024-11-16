@@ -2,13 +2,17 @@
   <div>
     <navbar/>
     <div v-if="$store.state.myRole === 'admin'">
-      <manager-admin/>
+      <manager-admin :role="$store.state.myRole"/>
+    </div>
+    <div v-if="$store.state.myRole === 'student'">
+      <manager-student :role="$store.state.myRole"/>
     </div>
   </div>
 </template>
 <script lang="ts">
 import Navbar from "@/components/dashboard/navbar.vue";
 import ManagerAdmin from "@/components/dashboard/manager-admin.vue";
+import ManagerStudent from "@/components/dashboard/manager-student.vue";
 import UserService from "@/service/user-api/api";
 import {ROLES} from "@/utils/constant";
 
@@ -19,7 +23,7 @@ export default {
       return ROLES
     }
   },
-  components: { Navbar, ManagerAdmin },
+  components: { Navbar, ManagerAdmin, ManagerStudent },
   data(){
   },
   methods:{
