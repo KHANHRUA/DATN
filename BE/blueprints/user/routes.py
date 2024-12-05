@@ -10,6 +10,8 @@ from blueprints.user import controller as user_control
 
 from blueprints.account.model import AccountModel
 
+from blueprints.classes.model import ClassModel
+
 from blueprints.user.model import UserModel, UserRole
 
 from werkzeug.utils import secure_filename
@@ -73,6 +75,36 @@ def uploadImage():
         status = HTTPStatus.OK
         return jsonify(content), status
 
+    except Exception as ex:
+        content = {
+            'error': str(ex)
+        }
+        status = HTTPStatus.INTERNAL_SERVER_ERROR
+        return jsonify(content), status
+
+
+@user_route.route('/my-information', methods=['GET'])
+@jwt_required()
+def getMyInformation():
+    try:
+        jwt = get_jwt_identity()
+        myId = jwt.get('id')
+        classId = jwt.get('class_id')
+        me = UserModel.find_by_id(myId).convert_json()
+        myClass = ClassModel.find_by_id(classId)
+        status = HTTPStatus.OK
+        me['role'] = me['role'].value
+        me["class_name"] = myClass.class_name
+        content = me
+        return jsonify(content), status
+    
+    except ValueError as ex:
+        content = {
+            'error': str(ex)
+        }
+        status = HTTPStatus.UNAUTHORIZED
+        return jsonify(content), status
+    
     except Exception as ex:
         content = {
             'error': str(ex)

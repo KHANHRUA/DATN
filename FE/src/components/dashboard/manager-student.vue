@@ -17,7 +17,7 @@
                 {{'User'}}
               </el-text>
             </el-button>
-            <roles-component ref="roles"/>
+            <edit-information ref="editInformation"/>
           </el-col>
           <el-col :span="12">
             <el-button class="buttonManager">
@@ -65,7 +65,7 @@
   </el-container>
 </template>
 <script lang="ts">
-import RolesComponent from "@/components/admin/roles-component.vue";
+import EditInformation from "@/components/student/edit-information.vue";
 import {User, Switch, Finished, Clock, BellFilled, Promotion} from "@element-plus/icons-vue"
 import ViewNotificationComponent from "@/components/admin/view-notification-component.vue";
 
@@ -73,7 +73,7 @@ export default {
   name: 'adminDashboard',
   components:{
     ViewNotificationComponent,
-    RolesComponent,
+    EditInformation,
     User,
     Switch,
     Finished,
@@ -95,7 +95,7 @@ export default {
   },
   methods:{
     openRolesModal(){
-      this.$refs.roles.show()
+      this.$refs.editInformation.show()
     },
     openViewNotificationModal(){
       this.$refs.viewNotification.show()

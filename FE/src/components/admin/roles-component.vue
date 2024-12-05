@@ -155,7 +155,7 @@
               </el-col>
               <el-col :span="24" :md="6">
                 <el-form-item label="Class" prop="class" label-position="top">
-                  <el-select v-model="form.class_id" filterable remote :remote-method="fetchClasses" placeholder="Class">
+                  <el-select v-model="form.class_id" filterable remote :remote-method="fetchClasses" remote-show-suffix placeholder="Class">
                     <el-option v-for="item in classList" :key="item.id" :label="item.class_name" :value="item.id"/>
                   </el-select>
                 </el-form-item>

@@ -7,6 +7,7 @@ import 'element-plus/dist/index.css';
 import {ROLE} from '@/store/store.ts';
 import '@/scss/glocal.scss'
 import _ from 'lodash';
+import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 
 const app = createApp(App)
 
@@ -17,6 +18,10 @@ app.use(router)
 app.use(ROLE)
 
 app.use(_)
+
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+    app.component(key, component);
+}
 
 app.config.globalProperties.$message = customMessage
 

@@ -16,14 +16,14 @@
             </el-col>
             <el-col :span="24" :md="12">
               <el-form-item label="Class" prop="class" label-position="top">
-                <el-select v-model="form.class" filterable clearable remote :remote-method="fetchClasses" placeholder="Class">
+                <el-select v-model="form.class" filterable clearable remote :remote-method="fetchClasses" remote-show-suffix placeholder="Class">
                   <el-option v-for="item in classList" :key="item.id" :label="item.class_name" :value="item.id"/>
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="24" :md="12">
               <el-form-item label="User" prop="user" label-position="top">
-                <el-select v-model="form.user" filterable clearable remote :remote-method="fetchUser" placeholder="User">
+                <el-select v-model="form.user" filterable clearable remote :remote-method="fetchUser" remote-show-suffix placeholder="User">
                   <el-option v-for="item in userList" :key="item.id" :label="item.name" :value="item.id"/>
                 </el-select>
               </el-form-item>

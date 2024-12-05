@@ -52,6 +52,16 @@ const UserService = {
                     role: query.role ?? null
                 }
             })
+    },
+
+    async GetInformation () {
+        const accessToken = localStorage.getItem('token')
+        return await baseURL.get('user/my-information',
+            {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
     }
 }
 

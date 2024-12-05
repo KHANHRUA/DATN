@@ -18,3 +18,7 @@ def get_all_classes_by_filter(page,perPage,class_name):
         result.append(clas.convert_json())
 
     return result
+
+def get_by_id(id):
+    class_object = ClassModel.find_by_id(id)
+    return class_object.convert_json()

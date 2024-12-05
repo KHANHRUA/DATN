@@ -7,6 +7,8 @@ from blueprints.gender.routes import gender_route
 from blueprints.user.routes import user_route
 from blueprints.classes.routes import class_route
 from blueprints.notification.routes import notification_route
+from blueprints.session.routes import session_route
+from blueprints.subject.routes import subject_route
 from app.db import db
 
 
@@ -29,6 +31,8 @@ app.register_blueprint(gender_route)
 app.register_blueprint(user_route)
 app.register_blueprint(class_route)
 app.register_blueprint(notification_route)
+app.register_blueprint(session_route)
+app.register_blueprint(subject_route)
 
 jwt = JWTManager(app)
 

@@ -50,7 +50,7 @@
             </el-text>
           </el-col>
           <el-col :span="12">
-            <el-button class="buttonManager">
+            <el-button class="buttonManager" @click="openScheduleEdit">
               <el-icon class="icon">
                 <Clock />
               </el-icon>
@@ -58,6 +58,7 @@
                 {{'Schedule'}}
               </el-text>
             </el-button>
+            <schedule-edit-component ref="scheduleEdit"/>
           </el-col>
           <el-col :span="12">
             <el-button class="buttonManager" @click="openViewNotificationModal">
@@ -80,10 +81,12 @@ import RolesComponent from "@/components/admin/roles-component.vue";
 import {User, Switch, Finished, Clock, BellFilled, Promotion} from "@element-plus/icons-vue"
 import SendNotificationComponent from "@/components/admin/send-notification-component.vue";
 import ViewNotificationComponent from "@/components/admin/view-notification-component.vue";
+import ScheduleEditComponent from "@/components/admin/schedule-edit-component.vue";
 
 export default {
   name: 'adminDashboard',
   components:{
+    ScheduleEditComponent,
     SendNotificationComponent,
     ViewNotificationComponent,
     RolesComponent,
@@ -115,6 +118,9 @@ export default {
     },
     openViewNotificationModal(){
       this.$refs.viewNotification.show()
+    },
+    openScheduleEdit(){
+      this.$refs.scheduleEdit.show()
     }
   }
 }
