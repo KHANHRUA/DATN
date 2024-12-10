@@ -7,12 +7,14 @@ from http import HTTPStatus
 import os,json,datetime,base64
 
 from blueprints.user import controller as user_control
+from blueprints.classes import controller as class_control
+from blueprints.gender import controller as gender_control
+from blueprints.user_subject import controller as user_subject_control
 
 from blueprints.account.model import AccountModel
-
 from blueprints.classes.model import ClassModel
-
 from blueprints.user.model import UserModel, UserRole
+from blueprints.user_subject.model import UserSubjectModel
 
 from werkzeug.utils import secure_filename
 
@@ -44,10 +46,49 @@ def userList():
         users = user_control.get_all_users_by_filter(page,perPage,name,role)
         total = UserModel.count_by_filter(name = name,role = role)
         for item in users:
+            item['subject'] = user_subject_control.get_by_user_id(item['id'])
+            if item['class_id']:
+                item['class'] = class_control.get_by_id(item['class_id'])
+            if item['gender_id']:
+                item['gender'] = gender_control.get_by_id(item['gender_id'])
             item['role'] = item['role'].value
         content = {
             'data': users,
             'total': total
+        }
+        status = HTTPStatus.OK
+        return jsonify(content), status
+
+    except Exception as ex:
+        content = {
+            'error': str(ex)
+        }
+        status = HTTPStatus.INTERNAL_SERVER_ERROR
+        return jsonify(content), status
+    
+@user_route.route('/change-info/<int:user_id>', methods=['patch'])
+def changeInfo(user_id):
+    try:
+        data = request.get_json()
+        user = UserModel.find_by_id(user_id)
+        if 'subject' in data:
+            subs = user_subject_control.get_model_by_user_id(user_id)
+            for sub in subs:
+                sub.delete_to_db()
+            subjects = data['subject']
+            for subject_id in subjects:
+                new_relative = UserSubjectModel(
+                    user_id=user_id,
+                    subject_id=subject_id
+                )
+                new_relative.save_to_db()
+            del data['subject']
+        for key, value in data.items():
+            if hasattr(user, key):  # Check if the attribute exists in the User model
+                setattr(user, key, value)
+        user.save_record()
+        content = {
+            'message' : 'success'
         }
         status = HTTPStatus.OK
         return jsonify(content), status
@@ -95,6 +136,11 @@ def getMyInformation():
         status = HTTPStatus.OK
         me['role'] = me['role'].value
         me["class_name"] = myClass.class_name
+        me['subject'] = user_subject_control.get_by_user_id(me['id'])
+        if me['class_id']:
+            me['class'] = class_control.get_by_id(me['class_id'])
+        if me['gender_id']:
+            me['gender'] = gender_control.get_by_id(me['gender_id'])
         content = me
         return jsonify(content), status
     

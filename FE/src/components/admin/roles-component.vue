@@ -62,7 +62,7 @@
           >
             <template v-slot:default="{row}">
               <div>
-                {{ row.gender_id }}
+                {{ row.gender && row.gender.gender }}
               </div>
             </template>
           </el-table-column>
@@ -71,7 +71,16 @@
           >
             <template v-slot:default="{row}">
               <div>
-                {{ row.class_id }}
+                {{ row.class && row.class.class_name }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+              label="Subject"
+          >
+            <template v-slot:default="{row}">
+              <div>
+                {{ row.subject && row.subject.name }}
               </div>
             </template>
           </el-table-column>
@@ -110,7 +119,7 @@
       </el-col>
     </el-row>
     <div>
-      <global-modal ref="editModal">
+      <global-modal ref="editModal" @submit="changeInfo">
         <template v-slot:header>
           <div class="header-modal">
             Edit information
@@ -155,15 +164,22 @@
               </el-col>
               <el-col :span="24" :md="6">
                 <el-form-item label="Class" prop="class" label-position="top">
-                  <el-select v-model="form.class_id" filterable remote :remote-method="fetchClasses" remote-show-suffix placeholder="Class">
+                  <el-select v-model="form.class_id" clearable filterable remote :remote-method="fetchClasses" remote-show-suffix placeholder="Class">
                     <el-option v-for="item in classList" :key="item.id" :label="item.class_name" :value="item.id"/>
                   </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="24" :md="6">
                 <el-form-item label="Role" prop="role" label-position="top">
-                  <el-select v-model="form.role" clearable placeholder="Role">
+                  <el-select v-model="form.role" clearable placeholder="Role" @change="changeRole">
                     <el-option v-for="item in roles" :key="item" :label="item" :value="item"/>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12" :md="6" v-if="form.role !== 'student'">
+                <el-form-item label="Subject" prop="subject" label-position="top">
+                  <el-select v-model="form.subject" placeholder="Subject" filterable remote multiple :remote-method="fetchSubject" remote-show-suffix>
+                    <el-option v-for="item in subjectList" :key="item.id" :label="item.name" :value="item.id"/>
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -173,8 +189,10 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12" :md="6">
-                <el-form-item label="Age" prop="age" label-position="top">
-                  <el-input v-model="form.age" placeholder="Type your age"/>
+                <el-form-item label="Gender" prop="gender" label-position="top">
+                  <el-select v-model="form.gender_id" placeholder="Gender" >
+                    <el-option v-for="item in genderList" :key="item.id" :label="item.name" :value="item.id"/>
+                  </el-select>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -204,6 +222,7 @@ import GlobalModal from "@/components/common/global-modal.vue";
 import type {UploadFile} from "element-plus";
 import ClassService from "@/service/class-api/api";
 import {debounce} from "lodash";
+import SubjectService from "@/service/subject-api/api";
 
 export default {
   name: 'RolesComponent',
@@ -214,7 +233,8 @@ export default {
       loading: {
         roles: false,
         class: false,
-        table: false
+        table: false,
+        subject: false
       },
       userList: [],
       query: {
@@ -230,11 +250,25 @@ export default {
         role: 'student',
         face_image: '',
         class_id: null,
+        gender_id: null,
         fileList: [],
+        subject: []
       },
+      genderList: [
+        {
+          id: 1,
+          name: 'male'
+        },
+        {
+          id: 2,
+          name: 'female'
+        }
+      ],
       rules: {},
       classList: [],
+      subjectList: [],
       classDebounce: null,
+      subjectDebounce: null,
       dialogVisible: false,
       dialogImageUrl: "",
       userDeleteId: null
@@ -248,6 +282,7 @@ export default {
   created() {
     this.fetchUser(this.query)
     this.fetchRoles()
+    this.fetchSubject()
     this.fetchClasses()
   },
   methods:{
@@ -258,7 +293,7 @@ export default {
         role: ROLES.STUDENT,
         page: 1,
         perPage: 20,
-      },
+      }
       this.fetchUser(this.query)
       this.rolesModal = true
     },
@@ -317,12 +352,20 @@ export default {
     },
 
     openModalEdit(data: User){
+      const sub = []
+      data.subject.map(item => {
+        sub.push(item.subject_id)
+      })
+      this.fetchSubject()
       this.form = {
+        id: data.id,
         name: data.name,
         age: data.age,
         role: data.role,
         face_image: data.face_image,
         class_id: data.class_id,
+        subject: sub,
+        gender_id: data.gender_id,
         fileList: [{
           name: 'current.png',
           url: data.face_image
@@ -375,6 +418,47 @@ export default {
     openConfirmModal(data){
       this.userDeleteId = data.id
       this.$refs.confirmModal.show()
+    },
+
+    changeInfo() {
+      UserService.ChangeInformation(this.form).then(()=>{
+        this.$refs.editModal.hide()
+        this.fetchUser(this.query)
+        this.$message({
+          message: "Change information successful!",
+          type: 'success',
+          duration: 2000
+        })
+      }).catch((error) => {
+        console.log(error)
+        this.$message({
+          message: "Change information failed!",
+          type: 'error',
+          duration: 2000
+        })
+      })
+    },
+
+    fetchSubject(filter){
+      const query = {
+        name: filter
+      }
+      this.subjectDebounce?.cancel()
+      this.subjectDebounce = debounce(()=>{
+        this.loading.subject = true
+        SubjectService.GetSubject(query).then((data) =>{
+              this.subjectList = data.data
+            }
+        ).catch((error)=>{
+          console.log(error)}
+        ).finally(()=>{
+          this.loading.subject = false
+        })
+      },500)()
+    },
+
+    changeRole() {
+      this.form.subject = []
     },
 
     deleteUser(){

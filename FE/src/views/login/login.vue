@@ -6,7 +6,7 @@
       <h2>Please Sign In</h2>
       <el-form ref="loginForm" :model="form" :rules="rules">
         <el-form-item label="Username" prop="username">
-          <el-input v-model="form.username" placeholder="Username">
+          <el-input v-model="form.username" placeholder="Username" @keydown.enter="handleLogin">
             <template v-slot:suffix>
               <el-icon>
                 <UserFilled/>
@@ -15,7 +15,7 @@
           </el-input>
         </el-form-item>
         <el-form-item label="Password" prop="password">
-          <el-input v-model="form.password" :type="passwordType" placeholder="Password">
+          <el-input v-model="form.password" :type="passwordType" placeholder="Password" @keydown.enter="handleLogin">
             <template v-slot:suffix>
               <div style="display: flex;justify-content: center;align-items: center" @click="changePasswordType">
                 <el-icon v-if="passwordType === 'password'">

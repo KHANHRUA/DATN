@@ -136,6 +136,7 @@ export default {
         page: 1,
         perPage: 20,
       }
+      this.fetchNotification()
       this.rolesModal = true
     },
 

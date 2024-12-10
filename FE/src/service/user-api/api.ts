@@ -1,6 +1,7 @@
 import baseURL from '@/service/service-axios-config';
 
 import { LoginParam } from "@/interface/login";
+import {UserData} from "@/interface/user";
 
 const UserService = {
     async Login (data: LoginParam){
@@ -57,6 +58,20 @@ const UserService = {
     async GetInformation () {
         const accessToken = localStorage.getItem('token')
         return await baseURL.get('user/my-information',
+            {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            })
+    },
+
+    async ChangeInformation (data: UserData) {
+        const accessToken = localStorage.getItem('token')
+        const id = data.id
+        delete data.fileList;
+        delete data.id;
+        return await baseURL.patch(`user/change-info/${id}`,
+            data,
             {
                 headers: {
                     'Authorization': 'Bearer ' + accessToken

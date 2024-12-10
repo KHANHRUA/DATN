@@ -15,4 +15,5 @@ def get_all_roles():
     return roles
 
 def get_user_by_id(id):
-    return UserModel.find_by_id(id = id)
+    user = UserModel.find_by_id(id = id)
+    return user.convert_json()

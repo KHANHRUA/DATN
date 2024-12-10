@@ -24,9 +24,9 @@ def list():
 
         if( jwt.get('role') != str(UserRole.admin.value)):
             id = jwt.get('id')
-            user = user_control.get_user_by_id(id)
+            class_id = jwt.get('class_id')
             myNotifications = notification_control.get_all_notification_by_filter(page,perPage,admin = 0,user_id=id,class_id=None)
-            myClassNotifications = notification_control.get_all_notification_by_filter(page,perPage,admin = 0,user_id=None,class_id=user.class_id)
+            myClassNotifications = notification_control.get_all_notification_by_filter(page,perPage,admin = 0,user_id=None,class_id=class_id)
             notifications.extend(myNotifications)
             notifications.extend(myClassNotifications)
         

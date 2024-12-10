@@ -23,4 +23,8 @@ html body{
   font-style: normal !important;
 }
 
+.el-overlay-dialog {
+  overflow: unset !important;
+}
+
 </style>

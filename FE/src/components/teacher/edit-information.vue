@@ -1,11 +1,11 @@
 <template>
-  <global-modal ref="editModal">
+  <global-modal ref="editModal" @submit="changeInfo">
     <template v-slot:header>
       <div class="header-modal">
         Edit information
       </div>
     </template>
-    <template v-slot:default>
+    <template v-slot:default style="overflow: hidden">
       <el-form :model="form" :rules="rules">
         <el-upload ref="uploadImage" v-model:file-list="form.fileList" accept=".jpg,.jpeg,.png,.gif" :on-error="error" :on-success="success" :before-upload="beforeUpload" :file-size-limit="1024*1024*5" :on-exceed="onExceed" action="http://localhost:5000/api/user/upload-image" list-type="picture-card" draggable="true" :limit="1">
           <el-icon>
@@ -47,6 +47,18 @@
               <el-input disabled placeholder="class name" v-model="form.class_name"/>
             </el-form-item>
           </el-col>
+          <el-col :span="12" :md="6" v-if="form.role !== 'student'">
+            <el-form-item label="Subject" prop="subject" label-position="top">
+              <el-select v-model="form.subject" placeholder="Subject" disabled>
+                <el-option v-for="item in subjectList" :key="item.id" :label="item.name" :value="item.id"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" :md="6">
+            <el-form-item label="Role" prop="role" label-position="top">
+              <el-input v-model="form.role" placeholder="Type your age" disabled/>
+            </el-form-item>
+          </el-col>
           <el-col :span="12" :md="6">
             <el-form-item label="Age" prop="age" label-position="top">
               <el-input v-model="form.age" placeholder="Type your age"/>
@@ -72,6 +84,8 @@ import GlobalModal from "@/components/common/global-modal.vue";
 import type {UploadFile} from "element-plus";
 import {ROLES} from "@/utils/constant";
 import UserService from "@/service/user-api/api";
+import {debounce} from "lodash";
+import SubjectService from "@/service/subject-api/api";
 
 export default {
   name: 'EditInformation',
@@ -79,14 +93,17 @@ export default {
   data(){
     return{
       form: {
+        id: null,
         name: '',
         age: null,
         role: 'student',
         face_image: '',
         class_id: null,
         fileList: [],
-        gender: ""
+        gender: "",
+        subject: [],
       },
+      subjectList: [],
       dialogVisible: false,
       dialogImageUrl: "",
       rules: {},
@@ -95,13 +112,34 @@ export default {
   methods: {
     show(){
       this.fetchInformation()
+      this.fetchSubject()
       this.$refs.editModal.show()
+    },
+
+    fetchSubject(filter){
+      const query = {
+        name: filter
+      }
+      this.subjectDebounce?.cancel()
+      this.subjectDebounce = debounce(()=>{
+        this.loading.subject = true
+        SubjectService.GetSubject(query).then((data) =>{
+              this.subjectList = data.data
+            }
+        ).catch((error)=>{
+          console.log(error)}
+        ).finally(()=>{
+          this.loading.subject = false
+        })
+      },500)()
     },
 
     fetchInformation() {
       UserService.GetInformation().then(response =>{
         const data = response.data
+        console.log(data)
         this.form = {
+          id: data.id,
           name: data.name,
           age: data.age,
           face_image: data.face_image,
@@ -110,10 +148,35 @@ export default {
             name: "avatar.png",
             url: data.face_image,
           }],
-          gender: data.gender.gender
+          gender: data.gender.gender,
+          subject: data.subject,
+          role: data.role
         }
       }).catch(error =>{
         console.log(error)
+      })
+    },
+
+    changeInfo() {
+      const sendData = {
+        id: this.form.id,
+        name: this.form.name,
+        age: this.form.age
+      }
+      UserService.ChangeInformation(sendData).then(()=>{
+        this.$refs.editModal.hide()
+        this.$message({
+          message: "Change information successful!",
+          type: 'success',
+          duration: 2000
+        })
+      }).catch((error) => {
+        console.log(error)
+        this.$message({
+          message: "Change information failed!",
+          type: 'error',
+          duration: 2000
+        })
       })
     },
 
