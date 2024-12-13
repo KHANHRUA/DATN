@@ -45,6 +45,7 @@ import UserService from "@/service/user-api/api";
 import loading from "@/mixin/loading.vue";
 import Register from "@/components/student/register.vue";
 import {Hide, View, UserFilled} from "@element-plus/icons-vue"
+import { socket } from '@/service/socket.service.ts'
 
 export default {
   name: 'login',
@@ -75,14 +76,14 @@ export default {
       this.$refs.register.show()
     },
 
-    registerSuccess(data){
+    async registerSuccess(data){
       this.form = data
       this.handleLogin()
     },
 
     handleLogin(){
       this.loading = true
-      UserService.Login(this.form).then(data =>{
+      UserService.Login(this.form).then(async (data) =>{
         this.loading = false
         localStorage.setItem('token', data.data.access_token)
         localStorage.setItem('user', JSON.stringify(data.data.user))
@@ -97,7 +98,7 @@ export default {
         this.loading = false
         this.$message(
             {
-              message: error.response && error.response.data && error.response && error.response.data.error,
+              message: error.response && error.response.data && error.response.data.error,
               type: 'error'
             }
         )

@@ -118,6 +118,7 @@ export default {
           value: 'Sunday'
         }
       ],
+      roomList: [],
       timeTable: [
         {
           period: "Class period 1",
@@ -218,7 +219,7 @@ export default {
     }
   },
   created() {
-    this.fetchClasses()
+    this.fetchClasses();
     this.setDefaultWeek();
   },
   methods: {

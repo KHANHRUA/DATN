@@ -17,6 +17,7 @@
 
 <script lang="ts">
 import Avatar from "@/components/dashboard/avatar.vue";
+import {socket} from "@/service/socket.service";
 export default {
   name: 'navbar',
   components:{
@@ -28,7 +29,12 @@ export default {
     }
   },
   methods:{
-    handleLogOut(){
+    async handleLogOut(){
+      const dataSocket = {
+        class_id: this.user.class_id
+      }
+      await socket.emit('logout', dataSocket)
+      socket.removeListener()
       localStorage.removeItem('user')
       localStorage.removeItem('token')
       this.$router.push('/login')

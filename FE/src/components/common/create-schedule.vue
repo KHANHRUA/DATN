@@ -73,6 +73,18 @@
               <el-option v-for="item in subjectList" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
           </el-col>
+          <el-col :span="24" :md="6" style="display: flex;flex-direction: column">
+            <label>Teacher</label>
+            <el-select v-model="form.user_id" placeholder="Teacher" filterable remote :remote-method="fetchTeacher" remote-show-suffix>
+              <el-option v-for="item in teacherList" :key="item.id" :label="item.name" :value="item.id"/>
+            </el-select>
+          </el-col>
+          <el-col :span="24" :md="6" style="display: flex;flex-direction: column">
+            <label>Room</label>
+            <el-select v-model="form.room_id" placeholder="Room" filterable remote :remote-method="fetchRoom" remote-show-suffix>
+              <el-option v-for="item in roomList" :key="item.id" :label="item.room_name" :value="item.id"/>
+            </el-select>
+          </el-col>
         </el-row>
 
         <br/>
@@ -92,6 +104,9 @@
 import SubjectService from "@/service/subject-api/api.ts";
 import {debounce} from "lodash";
 import SessionService from "@/service/session-api/api.ts";
+import RoomService from "@/service/room_api/api.ts";
+import UserService from "@/service/user-api/api.ts";
+
 
 export default {
   name: 'CreateSchedule',
@@ -106,9 +121,13 @@ export default {
         endWeek: null,
         time: null,
         subject: null,
-        dateOfWeek: null
+        dateOfWeek: null,
+        room_id: null,
+        user_id: null
       },
       subjectList: [],
+      roomList: [],
+      teacherList: [],
       timeList: [7,9,11,14,16,18],
       dateList: [
         {
@@ -139,15 +158,21 @@ export default {
       classList: [],
       loading: {
         user: false,
-        subject: false
+        subject: false,
+        room: false,
+        teacher: false
       },
       subjectDebounce: null,
       classDebounce: null,
+      roomDebounce: null,
+      teacherDebounce: null
     }
   },
   created() {
     this.setDefaultWeek();
     this.fetchSubject();
+    this.fetchRoom();
+    this.fetchTeacher();
   },
   props: {
     classPicked: {
@@ -174,6 +199,44 @@ export default {
         typeAdd: 'period'
       }
       this.modal = false
+    },
+
+    fetchTeacher(filter){
+      const param = {
+        name: filter,
+        role: 'teacher'
+      }
+      this.teacherDebounce?.cancel()
+      this.teacherDebounce = debounce(() => {
+        this.loading.teacher = true
+        UserService.GetUsers(param).then(data => {
+          this.teacherList = data.data.data
+        }).catch(error => {
+          console.log(error)
+        }).finally(() => {
+          this.loading.teacher = false
+        })
+      },500)()
+    },
+
+    fetchRoom(filter) {
+      const data = {
+        name: filter
+      }
+      this.roomDebounce?.cancel()
+      this.roomDebounce = debounce(() => {
+            this.loading.room = true
+            RoomService.getRoomList(data).then((data) => {
+                  this.roomList = data.data
+                }
+            ).catch((error) => {
+                  console.log(error)
+                }
+            ).finally(() => {
+              this.loading.room = false
+            })
+          }
+          , 500)()
     },
 
     setDefaultWeek() {
@@ -209,7 +272,9 @@ export default {
           class_id: this.form.class_id,
           subject_id: this.form.subject,
           date_from: date_from,
-          class_period: this.form.time
+          class_period: this.form.time,
+          room_id: this.form.room_id,
+          user_id: this.form.user_id
         }
         SessionService.CreateSession(data).then(() => {
           this.$message({
@@ -233,7 +298,9 @@ export default {
           subject_id: this.form.subject,
           week: Math.floor(((this.form.endWeek - this.form.week) /  (1000 * 60 * 60 * 24))/ 7) + 1,
           date_from: this.form.week.setHours( this.form.time, 0, 0, 0)  + (1000 * 60 * 60 * 24)*(this.form.dateOfWeek-1),
-          class_period: this.form.time
+          class_period: this.form.time,
+          room_id: this.form.room_id,
+          user_id: this.form.user_id
         }
         SessionService.CreateMultipleSession(data).then(() => {
           this.$message({

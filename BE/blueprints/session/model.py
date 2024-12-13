@@ -11,22 +11,24 @@ class SessionModel(db.Model):
     subject_id = db.Column(db.Integer)
     user_id = db.Column(db.Integer)
     class_period = db.Column(db.Integer)
+    room_id = db.Column(db.Integer)
 
-    def __init__(self, class_id, start_at, end_at, subject_id, user_id, class_period):
+    def __init__(self, class_id, start_at, end_at, subject_id, user_id, class_period, room_id):
         self.class_id = class_id
         self.start_at = start_at
         self.end_at = end_at
         self.subject_id = subject_id
         self.user_id = user_id
         self.class_period = class_period
+        self.room_id = room_id
 
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()    
 
     def convert_json(self):
-        inf_list = ['id', 'class_id', 'start_at', 'end_at', 'subject_id', 'user_id', 'class_period']
-        inf_list_DETAIL = [self.id, self.class_id, self.start_at, self.end_at, self.subject_id, self.user_id, self.class_period]
+        inf_list = ['id', 'class_id', 'start_at', 'end_at', 'subject_id', 'user_id', 'class_period', 'room_id']
+        inf_list_DETAIL = [self.id, self.class_id, self.start_at, self.end_at, self.subject_id, self.user_id, self.class_period, self.room_id]
         session_inf = {}
         for index, key in enumerate(inf_list):
             session_inf[key] = inf_list_DETAIL[index]
