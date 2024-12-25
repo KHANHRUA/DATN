@@ -13,6 +13,7 @@ from blueprints.attendant.routes import attendant_route
 from blueprints.subject.routes import subject_route
 from blueprints.room.routes import room_route
 from app.db import db
+import cv2
 import time
 
 from http import HTTPStatus
@@ -21,6 +22,7 @@ from blueprints.attendant.model import AttendantModel
 from blueprints.session import controller as session_control
 from blueprints.user import controller as user_control
 from blueprints.room import controller as room_control
+import numpy as np
 
 
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
@@ -55,28 +57,38 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 @app.route('/api/check-in', methods=['POST'])
 def attendant():
     try:
-        data = request.get_json()
-        user_id = data['user_id']
-        room = data['room']
-        room = room_control.get_record_by_name(room)
-        session = session_control.get_current_session(room['id'], int(time.time()))
-        if(session is False): 
-            raise ValueError('Not session in time')
-        user = user_control.get_user_by_id(user_id)
-        if(user['class_id'] != session['class_id']):
-            raise ValueError('You not in this session')
-        type_check = data['type_check']
-        newAttendant = AttendantModel(user_id=user_id,room_id=room['id'],session_id=session['id'],type_check=type_check)
-        newAttendant.save_to_db()
-        user['role'] = user['role'].value
-        dataSocket = {
-            'session': session,
-            "user": user,
-            "room": room,
-            'typeCheck': type_check
-        }
-        socketio.emit('attendant', {'data': dataSocket})
-        content = data
+        # data = request.get_json()
+        # user_id = data['user_id']
+        # room = data['room']
+        # file = request.data['image']
+        file = request.data
+        data = np.frombuffer(file, np.uint8)
+        height = 100
+        width = 100
+        channels = 3
+        img = data.reshape(height, width, channels)
+        print(img)
+        # print(npimg)
+        # img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+        # room = room_control.get_record_by_name(room)
+        # session = session_control.get_current_session(room['id'], int(time.time()))
+        # if(session is False): 
+        #     raise ValueError('Not session in time')
+        # user = user_control.get_user_by_id(user_id)
+        # if(user['class_id'] != session['class_id']):
+        #     raise ValueError('You not in this session')
+        # type_check = data['type_check']
+        # newAttendant = AttendantModel(user_id=user_id,room_id=room['id'],session_id=session['id'],type_check=type_check)
+        # newAttendant.save_to_db()
+        # user['role'] = user['role'].value
+        # dataSocket = {
+        #     'session': session,
+        #     "user": user,
+        #     "room": room,
+        #     'typeCheck': type_check
+        # }
+        # socketio.emit('attendant', {'data': dataSocket})
+        content = npimg
         status = HTTPStatus.OK
         return jsonify(content), status
     except ValueError as ex:

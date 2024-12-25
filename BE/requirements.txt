@@ -1,4 +1,9 @@
-Flask
-Flask-SQLAlchemy
-mysql-connector-python
+flask_restful
+flask_jwt_extended
+flask
+flask_cors
 bcrypt
+sqlalchemy
+flask_sqlalchemy
+flask_socketio
+pymysql
